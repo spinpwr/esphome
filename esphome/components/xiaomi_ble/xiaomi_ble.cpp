@@ -78,10 +78,11 @@ bool parse_xiaomi_service_data(XiaomiParseResult &result, const esp32_ble_tracke
 
   bool is_lywsdcgq = (raw[1] & 0x20) == 0x20 && raw[2] == 0xAA && raw[3] == 0x01;
   bool is_hhccjcy01 = (raw[1] & 0x20) == 0x20 && raw[2] == 0x98 && raw[3] == 0x00;
-  bool is_lywsd02 = (raw[1] & 0x20) == 0x20 && raw[2] == 0x5b && raw[3] == 0x04;
+  bool is_lywsd02 = (raw[1] & 0x20) == 0x20 && raw[2] == 0x5B && raw[3] == 0x04;
+  bool is_lywsd03mmc = (raw[1] & 0x58) == 0x58 && raw[2] == 0x5B && raw[3] == 0x05;
   bool is_cgg1 = ((raw[1] & 0x30) == 0x30 || (raw[1] & 0x20) == 0x20) && raw[2] == 0x47 && raw[3] == 0x03;
 
-  if (!is_lywsdcgq && !is_hhccjcy01 && !is_lywsd02 && !is_cgg1) {
+  if (!is_lywsdcgq && !is_hhccjcy01 && !is_lywsd02 && !is_lywsd03mmc && !is_cgg1) {
     // ESP_LOGVV(TAG, "Xiaomi no magic bytes");
     return false;
   }
@@ -91,6 +92,8 @@ bool parse_xiaomi_service_data(XiaomiParseResult &result, const esp32_ble_tracke
     result.type = XiaomiParseResult::TYPE_LYWSDCGQ;
   } else if (is_lywsd02) {
     result.type = XiaomiParseResult::TYPE_LYWSD02;
+  } else if (is_lywsd03mmc) {
+    result.type = XiaomiParseResult::TYPE_LYWSD03MMC;
   } else if (is_cgg1) {
     result.type = XiaomiParseResult::TYPE_CGG1;
   }
@@ -154,6 +157,8 @@ bool XiaomiListener::parse_device(const esp32_ble_tracker::ESPBTDevice &device) 
     name = "LYWSDCGQ";
   } else if (res->type == XiaomiParseResult::TYPE_LYWSD02) {
     name = "LYWSD02";
+  } else if (res->type == XiaomiParseResult::TYPE_LYWSD03MMC) {
+    name = "LYWSD03MMC";
   } else if (res->type == XiaomiParseResult::TYPE_CGG1) {
     name = "CGG1";
   }
